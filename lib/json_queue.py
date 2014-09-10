@@ -68,12 +68,15 @@ class JsonQueue:
         """
         found = False
 
-        with open('downloaded', 'r') as fp:
-            lines = fp.readlines()
-            for line in lines:
-                if str(link) in line:
-                    found = True
-                    break
+        try:
+            with open('downloaded', 'r') as fp:
+                lines = fp.readlines()
+                for line in lines:
+                    if str(link) in line:
+                        found = True
+                        break
+        except IOError:
+             return False
 
         return found
 

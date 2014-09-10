@@ -72,7 +72,10 @@ class Util:
             .replace('#', '\\#')
 
     def is_known_not_available(self, link):
-        f = open('not_available', 'r')
+        try:
+            f = open('not_available', 'r')
+        except IOError:
+            return False
         lines = f.readlines()
         f.close()
         found = False

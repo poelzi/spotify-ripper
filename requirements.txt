@@ -1,4 +1,4 @@
-PyAudio==0.2.7
+PyAudio==0.2.8
 args==0.1.0
 clint==0.3.4
 eyeD3==0.7.4
