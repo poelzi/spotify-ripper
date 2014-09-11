@@ -4,53 +4,69 @@ from subprocess import call
 import os
 import sys
 
+class MConfig(object):
+    pass
+
 class Util:
     _queue = None
+    config = MConfig()
 
     def __init__(self, queue):
         self._queue = queue
+        setattr(self.config, "download_missing", config_get("download_missing"))
 
     def printstr(self, str): # print without newline
         sys.stdout.write(str)
         sys.stdout.flush()
 
-    def shell(self, cmdline): # execute shell commands (unicode support)
+    @classmethod
+    def shell(cls, cmdline): # execute shell commands (unicode support)
         call(cmdline, shell=True)
 
-    def get_mp3_path(self, track, escaped = True):
-        _mp3_path = config_get('mp3_path')
+    def get_output_path(self, track, escaped = True):
+        _output_path = config_get('output_path')
+        if not _output_path:
+            _output_path = config_get('mp3_path')
 
         if self._queue.is_starred_track():
             artist   = track.artists()[0].name()
-            _mp3_path = _mp3_path+'/'+self.shellreplace('Spotify Starred')
-            _mp3_path = _mp3_path+'/'+self.shellreplace(artist)
+            _output_path = _output_path+'/'+self.shellreplace('Spotify Starred')
+            _output_path = _output_path+'/'+self.shellreplace(artist)
         else:
             artist   = track.album().artist().name()
             album    = track.album().name()
             year     = str(track.album().year())
-            _mp3_path = _mp3_path+'/'+self.shellreplace(artist)
-            _mp3_path = _mp3_path+'/'+self.shellreplace(album)
-            _mp3_path = _mp3_path+' '+self.shellreplace('('+year+')')
+            _output_path = _output_path+'/'+self.shellreplace(artist)
+            _output_path = _output_path+'/'+self.shellreplace(album)
+            _output_path = _output_path+' '+self.shellreplace('('+year+')')
 
-        if not os.path.exists(_mp3_path):
-            os.makedirs(_mp3_path)
+        if not os.path.exists(_output_path):
+            os.makedirs(_output_path)
 
         if not self._queue.is_starred_track():
             number = str(track.index()).zfill(2)
             disc = str(track.disc()).zfill(2)
 
-            _mp3_path = _mp3_path+'/'+self.shellreplace(disc)+'-' \
+            _output_path = _output_path+'/'+self.shellreplace(disc)+'-' \
                     +self.shellreplace(number)+'. '
         else:
-            _mp3_path = _mp3_path+'/'
+            _output_path = _output_path+'/'
 
-        _mp3_path = _mp3_path+self.shellreplace(track.name())
-        _mp3_path = _mp3_path+".mp3"
+        _output_path = _output_path+self.shellreplace(track.name())
 
         if escaped:
-            return self.shellescape(_mp3_path)
+            return self.shellescape(_output_path)
 
-        return _mp3_path
+        return _output_path
+
+    def get_encoders(self):
+        lst = config_get("encoders", ["mp3"])
+        rv = {}
+        for e in lst:
+            rv[e] = map(lambda x: unicode(x), config_get(e, []))
+        return rv
+
+
 
     def shellreplace(self, s):
         return s \
@@ -58,7 +74,8 @@ class Util:
             .replace('/', '_') \
             .replace(':', '_')
 
-    def shellescape(self, s):
+    @classmethod
+    def shellescape(cls, s):
         return s \
             .replace('"', '\\"') \
             .replace(' ', '\\ ') \

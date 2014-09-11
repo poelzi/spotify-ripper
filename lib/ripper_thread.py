@@ -1,4 +1,5 @@
 from config import *
+from clint.textui import colored
 
 from lib.jukebox import \
         TrackNotAvailableException, \
@@ -139,15 +140,19 @@ class RipperThread(Thread):
                     for track_artist in track.artists():
                         self._queue.add_artist_link(track_artist, 'track')
 
-                    if self._ripper.rip_init(session, track):
-                        self._ripper.play()
-                        self._end_of_track.wait()
-                        self._end_of_track.clear()
+                    rinit = self._ripper.rip_init(session, track)
+                    if rinit:
+                        if rinit != -1:
+                            self._ripper.play()
+                            self._end_of_track.wait()
+                            self._end_of_track.clear()
+                        self._ripper.encode(session, track)
                         self._ripper.rip_terminate(session, track)
-                        self._ripper.rip_id3(session, track)
+                        #self._ripper.rip_id3(session, track)
 
                 except TrackNotAvailableException:
                     print "Track not available (%s)" % track.name()
                     self._util.mark_as_not_available(Link.from_track(track))
+                print colored.green("="*60)
 
         self._ripper.disconnect()
