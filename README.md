@@ -8,8 +8,9 @@ Create mp3s from spotify songs.
 * (And so on, downloading artists similar to those similar to those on your
   `Starred` playlist)
 
-I have tested this on Mac OS X 10.9 with the default Python install. It works.
-YMMV.
+Tested on:
+* Mac OS X 10.9
+* Debian Sid
 
 
 # Getting started
@@ -32,8 +33,17 @@ YMMV.
   "mp3_path": "/Volumes/Music",
   "username": "me",
   "password": "password"
+  "encoders": ["mp3"],
+  "mp3": ["-V","1"],
+  "opus": ["--bitrate", 256]
 }
 ```
+
+You can select the output encoders in the encoders list.
+
+Supported encoders:
+* mp3 - most supported format
+* opus - new lossless format with brilliant quality
 
 ## Example `queue.json`
 
